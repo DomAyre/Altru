@@ -8,6 +8,7 @@ class AltruGlobalGiving implements AltruDonationInterface {
   static const String API_KEY = "c9cbda32-1670-4c24-98ec-c60cc3b468bc";
   static const Map<String, String> REQUEST_HEADER = {
     "Accept": "application/json",
+    "Content-Type": "application/json",
   };
 
   Client client;
@@ -16,12 +17,16 @@ class AltruGlobalGiving implements AltruDonationInterface {
     this.client = client != null ? client : Client();
   }
 
-  static AltruRecipient projectJsonToRecipient(projectJson) => AltruRecipient(name: projectJson["title"]);
-  static List<AltruRecipient> projectResponseToRecipients(Response response) {
+  static Response checkResponse(Response response) {
     if (response.statusCode != 200) {
       throw new Exception(response.reasonPhrase);
     }
 
+    return response;
+  }
+
+  static AltruRecipient projectJsonToRecipient(projectJson) => AltruRecipient(name: projectJson["title"]);
+  static List<AltruRecipient> projectResponseToRecipients(Response response) {
     var responseJson = json.decode(response.body);
     var projectJson = responseJson["projects"]["project"];
 
@@ -37,7 +42,10 @@ class AltruGlobalGiving implements AltruDonationInterface {
     return this
         .client
         .get(API_CALL, headers: REQUEST_HEADER)
+        .then(checkResponse)
         .then(projectResponseToRecipients)
         .then((recipients) => recipients.sublist(0, count));
   }
+
+  void close() => this.client.close();
 }

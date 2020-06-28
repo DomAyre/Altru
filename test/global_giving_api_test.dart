@@ -24,10 +24,20 @@ void main() {
     test("When API call response is bad, throws exception", () async {
       String exampleResponseReason = "Example Error";
 
-      MockClient mockClient = MockClient((request) async => http.Response(exampleResponseReason, 404));
+      MockClient mockClient = MockClient((request) async {
+        if (request.url.toString().contains("projects")) {
+          return http.Response(exampleResponseReason, 404);
+        } else
+          return http.Response("{}", 200);
+      });
       AltruGlobalGiving api = AltruGlobalGiving(client: mockClient);
 
-      expect(api.getRecipients(5), throwsException);
+      try {
+        await api.getRecipients(5);
+        fail("Bad API response should throw an exception");
+      } catch (error) {
+        expect(error, isInstanceOf<Exception>());
+      }
     });
 
     test("Respects the count in the API call", () async {
@@ -41,11 +51,11 @@ void main() {
     });
 
     test("When user asks for an unreasonable number of recipients, throws exception", () async {
-      MockClient mockClient = MockClient((request) async => http.Response("", 200));
+      MockClient mockClient = MockClient((request) async => http.Response("{}", 200));
 
       AltruGlobalGiving api = AltruGlobalGiving(client: mockClient);
 
-      for (int recipientCount in [0, -1000]) {
+      for (int recipientCount in [0, -1000, 11]) {
         expect(api.getRecipients(recipientCount), throwsAssertionError);
       }
     });
