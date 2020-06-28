@@ -25,7 +25,8 @@ class AltruGlobalGiving implements AltruDonationInterface {
     return response;
   }
 
-  static AltruRecipient projectJsonToRecipient(projectJson) => AltruRecipient(name: projectJson["title"]);
+  static AltruRecipient projectJsonToRecipient(projectJson) =>
+      AltruRecipient(name: projectJson["title"], id: projectJson['id']);
   static List<AltruRecipient> projectResponseToRecipients(Response response) {
     var responseJson = json.decode(response.body);
     var projectJson = responseJson["projects"]["project"];

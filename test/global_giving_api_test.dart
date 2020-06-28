@@ -16,7 +16,7 @@ getSuccessfulResponse(recipientJson) {
 }
 
 getSimpleProjectJson() {
-  return List.generate(10, (index) => {"title": "Project ${index + 1}"});
+  return List.generate(10, (index) => {"title": "Project ${index + 1}", "id": index});
 }
 
 void main() {
@@ -62,8 +62,8 @@ void main() {
 
     test("Correctly formats response into a list of AltruRecipients", () async {
       int recipientCount = 5;
-      List<AltruRecipient> expectedRecipients =
-          List<AltruRecipient>.generate(recipientCount, (index) => AltruRecipient(name: "Project ${index + 1}"));
+      List<AltruRecipient> expectedRecipients = List<AltruRecipient>.generate(
+          recipientCount, (index) => AltruRecipient(id: index, name: "Project ${index + 1}"));
 
       MockClient mockClient = MockClient((request) async => getSuccessfulResponse(getSimpleProjectJson()));
 
